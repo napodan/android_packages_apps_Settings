@@ -37,7 +37,13 @@
     </PreferenceScreen>
 
     <PreferenceCategory android:key="keyboard_settings_category"
-            android:title="@string/keyboard_settings_category" />
+            android:title="@string/keyboard_settings_category">
+
+        <PreferenceScreen android:key="input_method"
+                android:title="@string/input_method"
+                android:widgetLayout="@*android:layout/preference_dialog" />
+
+    </PreferenceCategory>
 
     <PreferenceScreen
             android:key="hardkeyboard_category"

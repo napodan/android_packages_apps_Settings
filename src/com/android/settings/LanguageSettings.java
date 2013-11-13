@@ -44,6 +44,7 @@ import java.util.List;
 public class LanguageSettings extends PreferenceActivity {
     
     private static final String KEY_PHONE_LANGUAGE = "phone_language";
+    private static final String KEY_INPUT_METHOD = "input_method";
     private static final String KEY_KEYBOARD_SETTINGS_CATEGORY = "keyboard_settings_category";
     private static final String KEY_HARDKEYBOARD_CATEGORY = "hardkeyboard_category";
     private boolean mHaveHardKeyboard;
@@ -285,7 +286,10 @@ public class LanguageSettings extends PreferenceActivity {
                 mLastTickedInputMethodId = null;
             }
         } else if (preference instanceof PreferenceScreen) {
-            if (preference.getIntent() == null) {
+            if (KEY_INPUT_METHOD.equals(preference.getKey())) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showInputMethodPicker();
+            } else if (preference.getIntent() == null) {
                 PreferenceScreen pref = (PreferenceScreen) preference;
                 String activityName = pref.getKey();
                 String packageName = activityName.substring(0, activityName
