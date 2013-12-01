@@ -535,6 +535,12 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
                     Log.v(TAG, "opp classbits != uuid");
                     printUuids = true;
                 }
+
+                if (bluetoothClass.doesClassMatch(BluetoothClass.PROFILE_HID) !=
+                    mProfiles.contains(Profile.HID)) {
+                    Log.v(TAG, "hid classbits != uuid");
+                    printUuids = true;
+                }
             }
 
             if (printUuids) {
@@ -634,7 +640,10 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
      * @return A one-off summary that is applicable for the current state, or 0.
      */
     private int getOneOffSummary() {
-        boolean isA2dpConnected = false, isHeadsetConnected = false, isConnecting = false;
+        boolean isA2dpConnected = false;
+        boolean isHeadsetConnected = false;
+        boolean isHidConnected = false;
+        boolean isConnecting = false;
 
         if (mProfiles.contains(Profile.A2DP)) {
             LocalBluetoothProfileManager profileManager = LocalBluetoothProfileManager
@@ -652,6 +661,14 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
             isHeadsetConnected = profileManager.isConnected(mDevice);
         }
 
+        if (mProfiles.contains(Profile.HID)) {
+            LocalBluetoothProfileManager profileManager = LocalBluetoothProfileManager
+                    .getProfileManager(mLocalManager, Profile.HID);
+            isConnecting |= profileManager.getConnectionStatus(mDevice) ==
+                    SettingsBtStatus.CONNECTION_STATUS_CONNECTING;
+            isHidConnected = profileManager.isConnected(mDevice);
+        }
+
         if (isConnecting) {
             // If any of these important profiles is connecting, prefer that
             return SettingsBtStatus.getConnectionStatusSummary(
@@ -662,6 +679,8 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
             return R.string.bluetooth_summary_connected_to_a2dp;
         } else if (isHeadsetConnected) {
             return R.string.bluetooth_summary_connected_to_headset;
+        } else if (isHidConnected) {
+            return R.string.bluetooth_summary_connected_to_hid;
         } else {
             return 0;
         }
@@ -678,7 +697,8 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
     }
 
     private boolean isConnectableProfile(Profile profile) {
-        return profile.equals(Profile.HEADSET) || profile.equals(Profile.A2DP);
+        return profile.equals(Profile.HEADSET) || profile.equals(Profile.A2DP) ||
+                profile.equals(Profile.HID);
     }
 
     public void onCreateContextMenu(ContextMenu menu) {
